@@ -1,43 +1,31 @@
-const tintColorLight = '#0C6B42';
-const tintColorDark = '#1C9963';
+const tintColorLight = "#128C7E" // WhatsApp primary green
+const tintColorDark = "#25D366" // WhatsApp lighter green for dark mode
 
 export default {
   light: {
-    primary: '#1C9963',
-    secondary: '#0C6B42',
-    accent: '#85D9AF',
-    text: '#1E1E1E',
-    background: '#F8F8F8',
+    text: "#222222",
+    background: "#FFFFFF",
+    cardBackground: "#FFFFFF",
     tint: tintColorLight,
-    tabIconDefault: '#94A3B8',
+    tabIconDefault: "#74787E",
     tabIconSelected: tintColorLight,
-    border: '#E2E8F0',
-    cardBackground: '#FFFFFF',
-    success: '#22C55E',
-    warning: '#F59E0B',
-    error: '#EF4444',
-    inactive: '#94A3B8',
+    primary: "#128C7E", // WhatsApp primary green
+    secondary: "#34B7F1", // WhatsApp blue accent
+    inactive: "#8696A0", // WhatsApp gray
+    border: "#E2E2E2",
+    error: "#FF3B30",
   },
   dark: {
-    primary: '#1C9963',
-    secondary: '#0C6B42',
-    accent: '#85D9AF',
-    text: '#F8FAFC',
-    background: '#111827',
+    text: "#FFFFFF",
+    background: "#111B21", // WhatsApp dark background
+    cardBackground: "#1F2C34", // WhatsApp dark card background
     tint: tintColorDark,
-    tabIconDefault: '#64748B',
+    tabIconDefault: "#8696A0",
     tabIconSelected: tintColorDark,
-    border: '#1E293B',
-    cardBackground: '#1E293B',
-    success: '#22C55E',
-    warning: '#F59E0B',
-    error: '#EF4444',
-    inactive: '#64748B',
+    primary: "#25D366", // WhatsApp lighter green for dark mode
+    secondary: "#34B7F1", // WhatsApp blue accent
+    inactive: "#8696A0", // WhatsApp gray
+    border: "#2A3942", // WhatsApp dark border
+    error: "#FF453A",
   },
-};
-
-export const Gradients = {
-  primary: ['#1C9963', '#0C6B42'],
-  secondary: ['#85D9AF', '#1C9963'],
-  accent: ['#BBF7D0', '#85D9AF'],
-};
+}

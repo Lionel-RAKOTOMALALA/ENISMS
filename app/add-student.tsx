@@ -1,127 +1,110 @@
-import { useState } from 'react';
-import { 
-  StyleSheet, 
-  TouchableOpacity, 
-  KeyboardAvoidingView, 
-  Platform,
-  ScrollView,
-  TextInput,
-  Alert 
-} from 'react-native';
-import { router } from 'expo-router';
-import { ThemedView } from '@/components/ThemedView';
-import { ThemedText } from '@/components/ThemedText';
-import { Header } from '@/components/Header';
-import { Button } from '@/components/Button';
-import { insertStudent } from '@/database/db';
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+"use client"
+
+import { useState } from "react"
+import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert, View } from "react-native"
+import { router } from "expo-router"
+import { ThemedView } from "@/components/ThemedView"
+import { ThemedText } from "@/components/ThemedText"
+import { insertStudent } from "@/database/db"
+import Colors from "@/constants/Colors"
+import { useColorScheme } from "@/hooks/useColorScheme"
+import { AnimatedHeader } from "@/components/animatedHeader"
+import { AnimatedInput } from "@/components/animatedInput"
+import { AnimatedButton } from "@/components/animatedButton"
+import { AnimatedCard } from "@/components/animatedCard"
+import { UserPlus } from "lucide-react-native"
 
 export default function AddStudentScreen() {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [level, setLevel] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const [name, setName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [level, setLevel] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const colorScheme = useColorScheme()
+  const colors = Colors[colorScheme ?? "light"]
 
   const handleAddStudent = async () => {
     // Validation
     if (!name.trim()) {
-      return Alert.alert('Erreur', 'Le nom est requis');
+      return Alert.alert("Erreur", "Le nom est requis")
     }
-    
+
     if (!phone.trim()) {
-      return Alert.alert('Erreur', 'Le numéro de téléphone est requis');
+      return Alert.alert("Erreur", "Le numéro de téléphone est requis")
     }
-    
+
     if (!level.trim()) {
-      return Alert.alert('Erreur', 'Le niveau est requis');
+      return Alert.alert("Erreur", "Le niveau est requis")
     }
-    
-    setIsSubmitting(true);
-    
+
+    setIsSubmitting(true)
+
     try {
-      await insertStudent(name.trim(), phone.trim(), level.trim());
-      Alert.alert(
-        'Succès', 
-        'Étudiant ajouté avec succès',
-        [{ text: 'OK', onPress: () => router.back() }]
-      );
+      await insertStudent(name.trim(), phone.trim(), level.trim())
+      Alert.alert("Succès", "Étudiant ajouté avec succès", [{ text: "OK", onPress: () => router.back() }])
     } catch (error) {
-      console.error('Error adding student:', error);
-      Alert.alert('Erreur', "Une erreur s'est produite lors de l'ajout de l'étudiant");
+      console.error("Error adding student:", error)
+      Alert.alert("Erreur", "Une erreur s'est produite lors de l'ajout de l'étudiant")
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   return (
     <ThemedView style={styles.container}>
-      <Header title="Ajouter un étudiant" showBack />
-      
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoid}
-      >
-        <ScrollView 
+      <AnimatedHeader title="Ajouter un étudiant" showBack />
+
+      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.keyboardAvoid}>
+        <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          <ThemedText style={styles.label}>Nom et prénom</ThemedText>
-          <TextInput
-            style={[styles.input, { 
-              backgroundColor: colors.background,
-              borderColor: colors.border,
-              color: colors.text
-            }]}
-            value={name}
-            onChangeText={setName}
-            placeholder="Entrez le nom complet"
-            placeholderTextColor={colors.inactive}
-          />
-          
-          <ThemedText style={styles.label}>Numéro de téléphone</ThemedText>
-          <TextInput
-            style={[styles.input, { 
-              backgroundColor: colors.background,
-              borderColor: colors.border,
-              color: colors.text
-            }]}
-            value={phone}
-            onChangeText={setPhone}
-            placeholder="Ex: 034 00 000 00"
-            keyboardType="phone-pad"
-            placeholderTextColor={colors.inactive}
-          />
-          
-          <ThemedText style={styles.label}>Niveau</ThemedText>
-          <TextInput
-            style={[styles.input, { 
-              backgroundColor: colors.background,
-              borderColor: colors.border,
-              color: colors.text
-            }]}
-            value={level}
-            onChangeText={setLevel}
-            placeholder="Ex: L1, L2, M1, etc."
-            placeholderTextColor={colors.inactive}
-          />
-          
-          <Button
-            title="Ajouter l'étudiant"
-            onPress={handleAddStudent}
-            loading={isSubmitting}
-            disabled={isSubmitting}
-            style={styles.button}
-            fullWidth
-          />
+          <AnimatedCard style={styles.formCard}>
+            <View style={styles.iconContainer}>
+              <UserPlus size={24} color={colors.primary} />
+            </View>
+
+            <ThemedText style={styles.formTitle}>Informations de l'étudiant</ThemedText>
+
+            <AnimatedInput
+              label="Nom et prénom"
+              value={name}
+              onChangeText={setName}
+              placeholder="Entrez le nom complet"
+              placeholderTextColor={colors.inactive}
+            />
+
+            <AnimatedInput
+              label="Numéro de téléphone"
+              value={phone}
+              onChangeText={setPhone}
+              placeholder="Ex: 034 00 000 00"
+              keyboardType="phone-pad"
+              placeholderTextColor={colors.inactive}
+            />
+
+            <AnimatedInput
+              label="Niveau"
+              value={level}
+              onChangeText={setLevel}
+              placeholder="Ex: L1, L2, M1, etc."
+              placeholderTextColor={colors.inactive}
+            />
+
+            <AnimatedButton
+              title="Ajouter l'étudiant"
+              onPress={handleAddStudent}
+              loading={isSubmitting}
+              disabled={isSubmitting}
+              style={styles.button}
+              fullWidth
+            />
+          </AnimatedCard>
         </ScrollView>
       </KeyboardAvoidingView>
     </ThemedView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -137,18 +120,26 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
   },
-  label: {
-    marginBottom: 8,
-    fontWeight: '500',
+  formCard: {
+    padding: 20,
   },
-  input: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
+  iconContainer: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "rgba(0, 122, 255, 0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
     marginBottom: 16,
-    fontSize: 16,
+  },
+  formTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 20,
+    textAlign: "center",
   },
   button: {
-    marginTop: 8,
+    marginTop: 16,
   },
-});
+})
