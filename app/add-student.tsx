@@ -5,16 +5,17 @@ import { StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Alert, View } f
 import { router } from "expo-router"
 import { ThemedView } from "@/components/ThemedView"
 import { ThemedText } from "@/components/ThemedText"
-import { insertStudent } from "@/database/db"
 import Colors from "@/constants/Colors"
 import { useColorScheme } from "@/hooks/useColorScheme"
 import { AnimatedHeader } from "@/components/animatedHeader"
 import { AnimatedInput } from "@/components/animatedInput"
 import { AnimatedButton } from "@/components/animatedButton"
 import { AnimatedCard } from "@/components/animatedCard"
-import { UserPlus } from "lucide-react-native"
+import { UserPlus, User, Phone, GraduationCap, Save } from "lucide-react-native"
+import { useStudentStore } from "@/store/studentStore"
 
 export default function AddStudentScreen() {
+  const { addStudent } = useStudentStore()
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [level, setLevel] = useState("")
@@ -40,7 +41,7 @@ export default function AddStudentScreen() {
     setIsSubmitting(true)
 
     try {
-      await insertStudent(name.trim(), phone.trim(), level.trim())
+      await addStudent(name.trim(), phone.trim(), level.trim())
       Alert.alert("Succès", "Étudiant ajouté avec succès", [{ text: "OK", onPress: () => router.back() }])
     } catch (error) {
       console.error("Error adding student:", error)
@@ -73,6 +74,7 @@ export default function AddStudentScreen() {
               onChangeText={setName}
               placeholder="Entrez le nom complet"
               placeholderTextColor={colors.inactive}
+              icon={<User size={20} color={colors.primary} />}
             />
 
             <AnimatedInput
@@ -82,6 +84,7 @@ export default function AddStudentScreen() {
               placeholder="Ex: 034 00 000 00"
               keyboardType="phone-pad"
               placeholderTextColor={colors.inactive}
+              icon={<Phone size={20} color={colors.primary} />}
             />
 
             <AnimatedInput
@@ -90,6 +93,7 @@ export default function AddStudentScreen() {
               onChangeText={setLevel}
               placeholder="Ex: L1, L2, M1, etc."
               placeholderTextColor={colors.inactive}
+              icon={<GraduationCap size={20} color={colors.primary} />}
             />
 
             <AnimatedButton
@@ -99,6 +103,7 @@ export default function AddStudentScreen() {
               disabled={isSubmitting}
               style={styles.button}
               fullWidth
+              icon={<Save size={20} color="#FFFFFF" />}
             />
           </AnimatedCard>
         </ScrollView>
@@ -127,7 +132,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "rgba(0, 122, 255, 0.1)",
+    backgroundColor: "rgba(18, 140, 126, 0.1)",
     justifyContent: "center",
     alignItems: "center",
     alignSelf: "center",

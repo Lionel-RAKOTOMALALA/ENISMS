@@ -1,7 +1,28 @@
 const tintColorLight = "#128C7E" // WhatsApp primary green
 const tintColorDark = "#25D366" // WhatsApp lighter green for dark mode
 
-export default {
+// Définir le type pour le thème
+type Theme = {
+  text: string
+  background: string
+  cardBackground: string
+  tint: string
+  tabIconDefault: string
+  tabIconSelected: string
+  primary: string
+  secondary: string
+  inactive: string
+  border: string
+  error: string
+}
+
+// Définir le type pour l'objet Colors
+type ColorScheme = {
+  light: Theme
+  dark: Theme
+}
+
+const Colors: ColorScheme = {
   light: {
     text: "#222222",
     background: "#FFFFFF",
@@ -29,3 +50,5 @@ export default {
     error: "#FF453A",
   },
 }
+
+export default Colors

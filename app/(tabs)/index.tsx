@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { StyleSheet, View, Alert, TextInput, RefreshControl, ActivityIndicator } from "react-native"
 import { ThemedView } from "@/components/ThemedView"
 import { ThemedText } from "@/components/ThemedText"
-import { type Student, fetchStudents } from "@/database/db"
 import Colors from "@/constants/Colors"
 import { useColorScheme } from "@/hooks/useColorScheme"
 import { getOperator } from "@/utils/operator"
@@ -13,43 +12,42 @@ import { AnimatedHeader } from "@/components/animatedHeader"
 import { StudentItemAnimated } from "@/components/StudentItemAnimated"
 import { AnimatedList } from "@/components/animatedList"
 import { EmptyStateAnimated } from "@/components/EmptyStateAnimated"
-import { Users } from "lucide-react-native"
+import { Users, Send, MessageSquare, RefreshCw } from "lucide-react-native"
 import { AnimatedButton } from "@/components/animatedButton"
 import { ModalAnimated } from "@/components/ModalAnimated"
+import { AnimatedLogo } from "@/components/AnimatedLogo"
+import { useStudentStore } from "@/store/studentStore"
+import { Student } from "@/database/db"
 
 export default function StudentsScreen() {
-  const [students, setStudents] = useState<Student[]>([])
-  const [loading, setLoading] = useState(true)
+  const { students, loadStudents, shouldRefresh, resetRefreshFlag } = useStudentStore()
   const [refreshing, setRefreshing] = useState(false)
   const [selectedOperator, setSelectedOperator] = useState<string | null>(null)
   const [message, setMessage] = useState<string>("")
   const [modalVisible, setModalVisible] = useState(false)
+  const [loading, setLoading] = useState(true)
+
   const colorScheme = useColorScheme()
   const colors = Colors[colorScheme ?? "light"]
 
-  const loadStudents = async () => {
-    try {
-      const data = await fetchStudents()
-      setStudents(data)
-    } catch (error) {
-      console.error("Error loading students:", error)
-    } finally {
-      setLoading(false)
-      setRefreshing(false)
-    }
-  }
+  useEffect(() => {
+    loadStudents().finally(() => setLoading(false))
+  }, [])
 
   useEffect(() => {
-    loadStudents()
-  }, [])
+    if (shouldRefresh) {
+      loadStudents()
+      resetRefreshFlag()
+    }
+  }, [shouldRefresh])
 
   const onRefresh = () => {
     setRefreshing(true)
-    loadStudents()
+    loadStudents().finally(() => setRefreshing(false))
   }
 
   // Trier par opérateur
-  const studentsByOperator = students.reduce((groups: Record<string, Student[]>, student) => {
+  const studentsByOperator = students.reduce<Record<string, Student[]>>((groups, student) => {
     const operator = getOperator(student.phone)
     if (!groups[operator]) {
       groups[operator] = []
@@ -92,16 +90,20 @@ export default function StudentsScreen() {
   const renderGroup = (operator: string, students: Student[]) => (
     <View key={operator} style={styles.operatorGroup}>
       <View style={styles.operatorHeader}>
-        <ThemedText style={styles.operatorLabel}>{`${operator} (${students.length})`}</ThemedText>
+        <View style={styles.operatorLabelContainer}>
+          <MessageSquare size={18} color={colors.primary} style={styles.operatorIcon} />
+          <ThemedText style={styles.operatorLabel}>{`${operator} (${students.length})`}</ThemedText>
+        </View>
         <AnimatedButton
           title="Envoyer à tous"
           onPress={() => openModal(operator)}
           style={styles.sendButton}
           variant="outline"
+          icon={<Send size={16} color={colors.primary} />}
         />
       </View>
       {students.map((student, index) => (
-        <StudentItemAnimated key={student.id} student={student} onDelete={loadStudents} delay={index * 0.1} />
+        <StudentItemAnimated key={student.id} student={student} onDelete={() => loadStudents()} delay={index * 0.1} />
       ))}
     </View>
   )
@@ -109,7 +111,20 @@ export default function StudentsScreen() {
   if (loading) {
     return (
       <ThemedView style={styles.centered}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <AnimatedLogo size={100} color={colors.primary} />
+      </ThemedView>
+    )
+  }
+
+  if (students.length === 0) {
+    return (
+      <ThemedView style={styles.centered}>
+        <AnimatedLogo size={60} color={colors.primary} />
+        <EmptyStateAnimated
+          title="Aucun étudiant"
+          description="Ajoutez des étudiants pour commencer à gérer votre classe."
+          icon={<Users size={48} color={colors.primary} />}
+        />
       </ThemedView>
     )
   }
@@ -117,34 +132,28 @@ export default function StudentsScreen() {
   return (
     <ThemedView style={styles.container}>
       <AnimatedHeader title="Étudiants par opérateur" showAdd />
-
-      {students.length === 0 ? (
-        <EmptyStateAnimated
-          title="Aucun étudiant"
-          description="Ajoutez des étudiants pour commencer à gérer votre classe."
-          icon={<Users size={48} color={colors.primary} />}
-        />
-      ) : (
-        <AnimatedList
-          data={Object.entries(studentsByOperator)}
-          renderItem={({ item }) => renderGroup(item[0], item[1])}
-          keyExtractor={(item) => item[0]}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              colors={[colors.primary]}
-              tintColor={colors.primary}
-            />
-          }
-        />
-      )}
-
-      {/* Modal pour saisir le message */}
+      <AnimatedList
+        data={Object.entries(studentsByOperator)}
+        renderItem={({ item }) => renderGroup(item[0], item[1])}
+        keyExtractor={(item) => item[0]}
+        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      />
       <ModalAnimated visible={modalVisible} onClose={() => setModalVisible(false)}>
-        <ThemedText style={styles.modalTitle}>Envoyer un message à tous les étudiants de {selectedOperator}</ThemedText>
+        <View style={styles.modalHeader}>
+          <AnimatedLogo size={30} color={colors.primary} />
+          <ThemedText style={styles.modalTitle}>
+            Envoyer un message à tous les étudiants utilisateurs de {selectedOperator}
+          </ThemedText>
+        </View>
         <TextInput
           value={message}
           onChangeText={setMessage}
@@ -167,6 +176,7 @@ export default function StudentsScreen() {
           disabled={!message.trim()}
           style={styles.modalButton}
           fullWidth
+          icon={<Send size={18} color="#FFFFFF" />}
         />
         <AnimatedButton
           title="Annuler"
@@ -174,6 +184,7 @@ export default function StudentsScreen() {
           style={{ marginVertical: 8 }}
           variant="outline"
           fullWidth
+          icon={<RefreshCw size={18} color={colors.primary} />}
         />
       </ModalAnimated>
     </ThemedView>
@@ -202,6 +213,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingHorizontal: 4,
   },
+  operatorLabelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  operatorIcon: {
+    marginRight: 8,
+  },
   operatorLabel: {
     fontSize: 18,
     fontWeight: "bold",
@@ -210,10 +228,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginLeft: 12,
+    flex: 1,
   },
   input: {
     borderWidth: 1,

@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react"
 import { StyleSheet, View, Text, TouchableOpacity, Alert, Animated, Easing } from "react-native"
-import { Trash2, MessageSquare } from "lucide-react-native"
+import { Trash2, MessageSquare, User, Phone, BookOpen } from "lucide-react-native"
 import { type Student, deleteStudent } from "@/database/db"
 import Colors from "@/constants/Colors"
 import { useColorScheme } from "@/hooks/useColorScheme"
@@ -116,10 +116,14 @@ export const StudentItemAnimated = ({ student, onDelete, delay = 0 }: StudentIte
         ]}
       >
         <View style={styles.infoContainer}>
-          <Text style={[styles.name, { color: colors.text }]}>{student.name}</Text>
+          <View style={styles.nameRow}>
+            <User size={16} color={colors.primary} style={styles.icon} />
+            <Text style={[styles.name, { color: colors.text }]}>{student.name}</Text>
+          </View>
 
           <View style={styles.detailsRow}>
             <View style={[styles.levelBadge, { backgroundColor: colors.primary + "15" }]}>
+              <BookOpen size={12} color={colors.primary} style={styles.badgeIcon} />
               <Text style={[styles.levelText, { color: colors.primary }]}>{student.level}</Text>
             </View>
 
@@ -128,7 +132,10 @@ export const StudentItemAnimated = ({ student, onDelete, delay = 0 }: StudentIte
             </View>
           </View>
 
-          <Text style={[styles.phone, { color: colors.inactive }]}>{student.phone}</Text>
+          <View style={styles.phoneRow}>
+            <Phone size={14} color={colors.inactive} style={styles.icon} />
+            <Text style={[styles.phone, { color: colors.inactive }]}>{student.phone}</Text>
+          </View>
         </View>
 
         <View style={styles.actionsContainer}>
@@ -162,20 +169,29 @@ const styles = StyleSheet.create({
   infoContainer: {
     flex: 1,
   },
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
   name: {
     fontSize: 16,
     fontWeight: "600",
-    marginBottom: 4,
   },
   detailsRow: {
     flexDirection: "row",
     marginBottom: 4,
   },
   levelBadge: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 12, // More rounded like WhatsApp
+    borderRadius: 12,
     marginRight: 8,
+  },
+  badgeIcon: {
+    marginRight: 4,
   },
   levelText: {
     fontSize: 12,
@@ -184,14 +200,21 @@ const styles = StyleSheet.create({
   operatorBadge: {
     paddingHorizontal: 8,
     paddingVertical: 2,
-    borderRadius: 12, // More rounded like WhatsApp
+    borderRadius: 12,
   },
   operatorText: {
     fontSize: 12,
     fontWeight: "500",
   },
+  phoneRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   phone: {
     fontSize: 14,
+  },
+  icon: {
+    marginRight: 6,
   },
   actionsContainer: {
     flexDirection: "row",
@@ -199,7 +222,7 @@ const styles = StyleSheet.create({
   actionButton: {
     width: 36,
     height: 36,
-    borderRadius: 18, // Circular buttons like WhatsApp
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 8,
